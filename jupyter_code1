@@ -1,0 +1,414 @@
+import pandas as pd
+df = pd.read_csv('Assistance_PrimeAwardSummaries_2022-12-28_H16M23S51_1.csv')
+import numpy as np
+
+import locale
+locale.setlocale(locale.LC_ALL, '')  # Use '' for auto, or force e.g. to 'en_US.UTF-8'
+
+from __future__ import division
+
+pd.set_option('display.max_rows', 300)
+pd.set_option('display.max_columns', 150)
+
+pd.set_option('float_format', '{:f}'.format)
+from babel.numbers import format_currency
+# Total = df['total_obligated_amount'].sum()
+# print (Total)
+
+# df_2021awards = df.loc[df['award_base_action_date_fiscal_year'] == 2021]
+# df_2021awards['total_obligated_amount'].sum()
+
+# df_2021awards[df_2021awards['award_id_fain'].str.contains("FA")]['total_obligated_amount'].sum()
+mylist = [2021,2022,2023]
+IO_list = [483451832, 481075166, 301997891, 304278005, 483581992, 1709294, 62024112, 483581992, 626534515, 242777894, 481751894, 645000100, 718708159, 300587482, 225356161, 486037638, 71550813, 793511262, 17698452, 480997543, 483240862, 432160539, 151386109, 645521498, 66769738, 588031062]
+df = pd.read_csv('Assistance_PrimeAwardSummaries_2022-10-05_H11M46S49_1.csv')
+df['Fixed Amount Award'] = np.where(df['award_id_fain'].str.contains("FA"), 'True', "False")
+for organization in IO_list:
+    df['International Organization'] = np.where(df['recipient_duns'].str.contains(organization), 'True',"False")
+# time_series = []
+# contractor_list = [67180786, 927923250, 68205541, 618022149, 484592147, 72129919, 4868105, 134170547, 71713085, 1910777, 71903322, 145729117, 40054827, 1793082, 43397520, 414552968, 62157045, 78854940, 186295239, 186375218, 77705911, 83510842, 189705820, 103713624, 66781956, 7041168, 538544105, 128663390, 48855415, 3203213, 637288759, 20790895, 122190242, 73268229, 72645393, 93654457]
+for year in mylist:
+
+    df = pd.read_csv('Assistance_PrimeAwardSummaries_2022-10-05_H11M46S49_1.csv')
+#     df_subs = pd.read_csv('Assistance_Subawards_2022-01-17_H14M28S38_1.csv')    
+    
+    new_df = df
+#         this reads in the data
+    new_df = df.loc[df['award_base_action_date_fiscal_year'] == year]
+    new_df_subs = df_subs.loc[df_subs['subaward_action_date_fiscal_year'] == year]
+        # this creates a new dataframe for the year
+    total_obligations_to_all = new_df['total_obligated_amount'].sum()
+        # this calculates the total obligations for the fiscal year, including to primes and IOs and other donors
+    
+    
+
+#     remove_duns_value_for_IOs_and_donors = [483451832, 481075166, 301997891, 304278005, 483581992, 1709294, 62024112, 483581992, 626534515, 242777894, 481751894, 645000100, 718708159, 300587482, 225356161, 486037638, 71550813, 793511262, 17698452, 480997543, 483240862, 432160539, 151386109, 645521498, 66769738, 588031062]
+#     for number in remove_duns_value_for_IOs_and_donors:
+#         new_df = new_df.drop(new_df[new_df.recipient_duns == number].index)
+#         ## this code below removes DUNS numbers for organizations affiliated with other donors and/or international organizations like Gavi, Global Fund, United Nations, etc.
+#         new_df_subs = new_df_subs.drop(new_df_subs[new_df_subs.prime_awardee_duns == number].index)
+    
+        
+    new_df = df    
+
+     IO_list = [483451832, 481075166, 301997891, 304278005, 483581992, 1709294, 62024112, 483581992, 626534515, 242777894, 481751894, 645000100, 718708159, 300587482, 225356161, 486037638, 71550813, 793511262, 17698452, 480997543, 483240862, 432160539, 151386109, 645521498, 66769738, 588031062]
+    
+    faa = new_df[new_df['award_id_fain'].str.contains("FA")]['total_obligated_amount'].sum()
+
+    
+    df['Fixed Amount Award'] = np.where(df['award_id_fain'].str.contains("FA"), 'True', "False")
+    for organization in IO_list:
+        df['International Organization'] = np.where(df['recipient_duns'].str.contains(organization), 'True',"false"
+    
+    
+        # this is the total value of obligated fixed award amounts
+    total_amount_nonIOs = new_df['total_obligated_amount'].sum()
+        # this is the total value of funding obligations made to primes, not including IOs and other donors
+#     percentage_awards_under5million = new_df[new_df['total_obligated_amount']<5000000].shape[0] / new_df.shape[0]
+    volume_of_awards_10mil_or_more = new_df[new_df['total_obligated_amount']>10000000].total_obligated_amount.sum()
+    percent_of_funding_to_big_awards = volume_of_awards_10mil_or_more / total_amount_nonIOs
+        # this calculates percentage of funding that flows through awards valued at $10 million or more
+    
+    total_number_primes = df.recipient_duns.nunique()
+    total_funding_to_subs = new_df_subs.subaward_amount.sum()
+    percent_funding_to_subs = new_df_subs.prime_award_amount.sum()/total_amount_nonIOs
+    
+    print("Total Funding to Subs:", total_funding_to_subs)
+    print("Amount Primes are getting accordig to sub data:", new_df_subs.prime_award_amount.sum())
+    print("Amount primes are getting according to the prime data: ", total_amount_nonIOs)
+    
+    
+    
+    removes_miscellaneous_value = [123456787]
+    # this DUNS number is a catch all for all "miscellaneous foreign contractors"
+    for number in removes_miscellaneous_value:
+        new_df = new_df.drop(new_df[new_df.recipient_duns == number].index)
+    
+    big_primes = new_df.groupby(['recipient_duns'])['total_obligated_amount'].agg('sum').sort_values().iloc[::-1].head(25).sum()/total_amount_nonIOs
+    print ("Total number of primes: ", total_number_primes)
+    
+    print ("Fiscal Year:", year,"| Total Grants Obligated including IOs and donors: ", (f"{total_obligations_to_all:,}"), "| Total Grants obligated to primes: ", (f"{total_amount_nonIOs:,}"), "| Fixed Award Amounts: ", (f"{faa:,})", "|FAAs Percent of Total: ", '{:.1%}'.format(faa/total_amount_nonIOs), "| Percent of Awards that went to top 25 primes: ", '{:.1%}'.format(big_primes), "Percent of awards that flowed through large funding vehicles at $10 million or more: ", '{:.1%}'.format(percent_of_funding_to_big_awards)))
+
+    
+    
+    for contractor in contractor_list:
+        money = new_df[new_df.recipient_duns == contractor].total_obligated_amount.sum()
+        bandit = contractor
+        time_series.append([money, bandit, year])
+    
+time_series
+
+    
+           
+           
+           
+  File "/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_24761/1707511124.py", line 33
+    IO_list = [483451832, 481075166, 301997891, 304278005, 483581992, 1709294, 62024112, 483581992, 626534515, 242777894, 481751894, 645000100, 718708159, 300587482, 225356161, 486037638, 71550813, 793511262, 17698452, 480997543, 483240862, 432160539, 151386109, 645521498, 66769738, 588031062]
+    ^
+IndentationError: unexpected indent
+mylist = [2021,2022,2023]
+IO_list = [483451832, 481075166, 301997891, 304278005, 483581992, 1709294, 62024112, 483581992, 626534515, 242777894, 481751894, 645000100, 718708159, 300587482, 225356161, 486037638, 71550813, 793511262, 17698452, 480997543, 483240862, 432160539, 151386109, 645521498, 66769738, 588031062]
+df = pd.read_csv('Assistance_PrimeAwardSummaries_2022-10-05_H11M46S49_1.csv')
+df['Fixed Amount Award'] = np.where(df['award_id_fain'].str.contains("FA"), 'True', "False")
+
+remove_duns_value_for_IOs_and_donors = [483451832, 481075166, 301997891, 304278005, 483581992, 1709294, 62024112, 483581992, 626534515, 242777894, 481751894, 645000100, 718708159, 300587482, 225356161, 486037638, 71550813, 793511262, 17698452, 480997543, 483240862, 432160539, 151386109, 645521498, 66769738, 588031062]
+for number in remove_duns_value_for_IOs_and_donors:
+     df = df.drop(df[df.recipient_duns == number].index)
+        ## this code below removes DUNS numbers for organizations affiliated with other donors and/or international organizations like Gavi, Global Fund, United Nations, etc.
+#     new_df_subs = new_df_subs.drop(new_df_subs[new_df_subs.prime_awardee_duns == number].index)
+    
+
+for year in mylist:
+
+    df = pd.read_csv('Assistance_PrimeAwardSummaries_2022-10-05_H11M46S49_1.csv')    
+    new_df = df
+#         this reads in the data
+    new_df = df.loc[df['award_base_action_date_fiscal_year'] == year]
+    total_obligations_to_all = new_df['total_obligated_amount'].sum()
+    faa = new_df[new_df['award_id_fain'].str.contains("FA")]['total_obligated_amount'].sum()
+    volume_of_awards_10mil_or_more = new_df[new_df['total_obligated_amount']>10000000].total_obligated_amount.sum()
+    percent_of_funding_to_big_awards = volume_of_awards_10mil_or_more / total_obligations_to_all
+    total_number_primes = df.recipient_duns.nunique()
+    faa_count = new_df[new_df['award_id_fain'].str.contains("FA")].count()
+#     total_funding_to_subs = new_df_subs.subaward_amount.sum()
+#     percent_funding_to_subs = new_df_subs.prime_award_amount.sum()/total_amount_nonIOs
+    big_primes = new_df.groupby(['recipient_duns'])['total_obligated_amount'].agg('sum').sort_values().iloc[::-1].head(25).sum()/total_obligations_to_all
+#     print ("Total number of primes: ", total_number_primes)
+#     print ("Fiscal Year:", year, faa_count,"| Total Grants Obligated including IOs and donors: ", (f"{total_obligations_to_all:,}")," | Fixed Award Amounts: ", (f"{faa:,})", "|FAAs Percent of Total: ", '{:.1%}'.format(faa/total_obligations_to_all), "| Percent of Awards that went to top 25 primes: ", '{:.1%}'.format(big_primes), "Percent of awards that flowed through large funding vehicles at $10 million or more: ", '{:.1%}'.format(percent_of_funding_to_big_awards)))
+    
+    
+    
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_24761/1893872635.py:22: RuntimeWarning: invalid value encountered in double_scalars
+  percent_of_funding_to_big_awards = volume_of_awards_10mil_or_more / total_obligations_to_all
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_24761/1893872635.py:27: RuntimeWarning: invalid value encountered in double_scalars
+  big_primes = new_df.groupby(['recipient_duns'])['total_obligated_amount'].agg('sum').sort_values().iloc[::-1].head(25).sum()/total_obligations_to_all
+mylist = [2021,2022]
+IO_list = {483451832, 481075166, 301997891, 304278005, 483581992, 1709294, 62024112, 483581992, 626534515, 242777894, 481751894, 645000100, 718708159, 300587482, 225356161, 486037638, 71550813, 793511262, 17698452, 480997543, 483240862, 432160539, 151386109, 645521498, 66769738, 588031062}
+undisclosed_list = [123456787, 790238638, 790238851, 790238638]
+grant_df = pd.read_csv('Assistance_PrimeAwardSummaries_2022-01-17_H16M22S51_1.csv')
+grant_df['Fixed Price'] = np.where(grant_df['award_id_fain'].str.contains("FA"), 'Yes', "No")
+# df['recipient_parent_duns'] = df['recipient_duns'].astype(str)
+grant_df['International Organization'] = np.where(grant_df['recipient_duns'].isin(IO_list),'Yes', "No")
+grant_df['Mechanism'] = "Grant or Cooperative Agreement"
+grant_df['Undisclosed awardee'] = np.where(grant_df['recipient_duns'].isin(undisclosed_list),'Yes', "No")
+df_contracts = pd.read_csv('Contracts_PrimeAwardSummaries_2022-01-17_H16M21S56_1.csv')
+
+
+df_contracts['award_id_piid'].head(300)
+df_contracts['Fixed Price'] = np.where(df_contracts['award_id_piid'].str.contains("FFP"), 'Yes', "No")
+df_contracts['International Organization'] = np.where(df_contracts['recipient_duns'].isin(IO_list),'Yes', "No")
+df_contracts['Undisclosed awardee'] = np.where(df_contracts['recipient_duns'].isin(undisclosed_list),'Yes', "No")
+df_contracts["Mechanism"] = "Contract"
+
+
+bigdata = grant_df.append(df_contracts, ignore_index=True)
+bigdata["recipient_name"] = bigdata['recipient_name'].str.replace('[^\w\s\|.|,]',"")
+bigdata["recipient_name"] = bigdata['recipient_name'].str.replace('.',"")
+bigdata["recipient_name"] = bigdata['recipient_name'].str.replace(',',"")
+# bigdata.replace(',','', regex=True, inplace=True)
+# bigdata.replace('.','',regex=True, inplace=True)
+
+
+
+
+
+
+new_bigdata = bigdata[['recipient_name','award_base_action_date','award_base_action_date_fiscal_year','total_obligated_amount','Mechanism','recipient_duns','recipient_parent_duns','Fixed Price',"International Organization",'obligated_amount_funded_by_COVID-19_supplementals','recipient_country_name', "Undisclosed awardee","period_of_performance_start_date"]]
+
+pd.to_datetime(new_bigdata.award_base_action_date)
+pd.to_datetime(new_bigdata.award_base_action_date_fiscal_year)
+pd.to_datetime(new_bigdata.period_of_performance_start_date)
+
+new_bigdata["obligated_amount_funded_by_COVID-19_supplementals"].fillna(0, inplace=True)
+new_bigdata["recipient_country_name"].fillna("Not disclosed", inplace=True)
+new_bigdata["obligated_amount_funded_by_COVID-19_supplementals"] = new_bigdata["obligated_amount_funded_by_COVID-19_supplementals"].apply(lambda x: format_currency(x, currency="USD", locale="en_US"))
+new_bigdata["recipient_parent_duns"].fillna("Not available", inplace=True)
+new_bigdata['recipient_duns'] = new_bigdata['recipient_duns'].astype(str)
+new_bigdata['recipient_parent_duns'] = new_bigdata['recipient_parent_duns'].astype(str)
+new_bigdata["recipient_country_name"].replace("UNITED STATES OF AMERICA", "UNITED STATES", inplace=True)
+
+# new_bigdata["total_obligated_amount"] = new_bigdata["total_obligated_amount"].apply(lambda x: format_currency(x, currency="USD", locale="en_US"))
+# new_bigdata.to_csv('PrimeAwards.csv')
+
+# df.groupby(['recipient_parent_duns','recipient_name','International Organization'])['total_obligated_amount'].sum().sort_values().iloc[::-1]
+# # new_df.groupby(['recipient_duns','recipient_name'])['total_obligated_amount'].agg('sum').sort_values().iloc[::-1].count()
+/Users/walterkerr/opt/anaconda3/lib/python3.9/site-packages/IPython/core/interactiveshell.py:3444: DtypeWarning: Columns (22,59,88,89,97,160,161) have mixed types.Specify dtype option on import or set low_memory=False.
+  exec(code_obj, self.user_global_ns, self.user_ns)
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_24761/2601360722.py:12: FutureWarning: The default value of regex will change from True to False in a future version.
+  bigdata["recipient_name"] = bigdata['recipient_name'].str.replace('[^\w\s\|.|,]',"")
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_24761/2601360722.py:13: FutureWarning: The default value of regex will change from True to False in a future version. In addition, single character regular expressions will *not* be treated as literal strings when regex=True.
+  bigdata["recipient_name"] = bigdata['recipient_name'].str.replace('.',"")
+/Users/walterkerr/opt/anaconda3/lib/python3.9/site-packages/pandas/core/generic.py:6392: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  return self._update_inplace(result)
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_24761/2601360722.py:31: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  new_bigdata["obligated_amount_funded_by_COVID-19_supplementals"] = new_bigdata["obligated_amount_funded_by_COVID-19_supplementals"].apply(lambda x: format_currency(x, currency="USD", locale="en_US"))
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_24761/2601360722.py:33: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  new_bigdata['recipient_duns'] = new_bigdata['recipient_duns'].astype(str)
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_24761/2601360722.py:34: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  new_bigdata['recipient_parent_duns'] = new_bigdata['recipient_parent_duns'].astype(str)
+/Users/walterkerr/opt/anaconda3/lib/python3.9/site-packages/pandas/core/generic.py:6619: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  return self._update_inplace(result)
+unique_list = df.groupby(['recipient_duns', 'recipient_name']).head(1)
+
+unique_duns_dict = pd.Series(unique_list['recipient_name'].values,index=unique_list['recipient_duns']).to_dict()
+
+unique_duns_dict
+df['recipient_name'] = df['recipient_duns'].map(unique_duns_dict)
+df["recipient_name"].replace("DAINATHAN GROUP LIMITED LIABILITY COMPANY", "DAI GLOBAL", inplace=True)
+
+# new_bigdata.to_csv('PrimeAwards.csv')
+
+# unique_list
+ 
+df.groupby(['recipient_parent_duns','recipient_duns','recipient_name'])['total_obligated_amount'].sum().sort_values().iloc[::-1]
+# percentage_awards_under5million = new_df[new_df['total_obligated_amount']<5000000].shape[0] / new_df.shape[0]
+# volume_of_awards_10mil_or_more = new_df[new_df['total_obligated_amount']>10000000].total_obligated_amount.sum()
+# volume_of_awards_10mil_or_more / total_amount_nonIOs
+recipient_parent_duns  recipient_duns    recipient_name                                                         
+483451832.000000       483451832.000000  GAVI ALLIANCE                                                             6480798655.000000
+1709294.000000         71550813.000000   UNITED NATIONS                                                            5577322528.000000
+67180786.000000        67180786.000000   FAMILY HEALTH INTERNATIONAL                                               1601258706.330000
+1709294.000000         17698452.000000   UNICEF                                                                    1195499046.000000
+68205541.000000        68205541.000000   CATHOLIC RELIEF SERVICES - UNITED STATES CONFERENCE OF CATHOLIC BISHOPS    914242454.000000
+                                                                                                                          ...       
+685201743.000000       685201743.000000  OBSHCHESTVO KRASNOGO POLUMESYATSA RESPUBLIKI KAZAKHSTAN, OO                   100000.000000
+20297487.000000        20297487.000000   WOODROW WILSON INTERNATIONAL CENTER FOR SCHOLARS                               50000.000000
+74875238.000000        74875238.000000   BUCKNER INTERNATIONAL                                                          42808.000000
+434017188.000000       434414118.000000  BILIMETRIX SRL                                                                     0.000000
+96997515.000000        96997515.000000   OREGON HEALTH & SCIENCE UNIVERSITY                                                 0.000000
+Name: total_obligated_amount, Length: 339, dtype: float64
+# xyz = new_df.groupby(['recipient_duns','recipient_name'])['total_obligated_amount'].agg('sum').sort_values().iloc[::-1].head(35)
+# new_df.loc[new_df['award_id_fain'].str.contains('FA')]
+df_subcontracts = pd.read_csv('Contracts_Subawards_2022-01-17_H14M28S10_1.csv')
+df_subawards = pd.read_csv('Assistance_Subawards_2022-01-17_H14M28S38_1.csv')
+/Users/walterkerr/opt/anaconda3/lib/python3.9/site-packages/IPython/core/interactiveshell.py:3444: DtypeWarning: Columns (88) have mixed types.Specify dtype option on import or set low_memory=False.
+  exec(code_obj, self.user_global_ns, self.user_ns)
+ 
+Assistance_PrimeAwardSummaries_2022-01-17_H16M22S51_1.csv
+Assistance_Subawards_2022-01-17_H14M28S38_1.csv
+Contracts_PrimeAwardSummaries_2022-01-17_H16M21S56_1.csv
+Contracts_Subawards_2022-01-17_H14M28S10_1.csv
+PrimeAwards.csv
+Untitled.ipynb
+country_distribution.csv
+country_distribution2019.csv
+country_distribution2020.csv
+top_contractorscovid19.csv
+# import numpy as np
+# time_series_df = pd.DataFrame(np.array(time_series).reshape(-1,3), columns=['money', 'bandit', 'year'])
+# new_df.total_funding_amount.sum()
+# total_obligations_to_all
+# df_subs = pd.read_csv('Assistance_Subawards_2022-01-17_H14M28S38_1.csv')
+# df_subs = pd.read_csv('Assistance_Subawards_2022-01-17_H14M28S38_1.csv')
+# new_df_subs = df_subs.loc[df_subs['subaward_action_date_fiscal_year'] == 2022]
+# new_df_subs.prime_award_amount.sum()
+# new_df
+# pd.set_option("max_rows", None)
+# new_df.groupby(['recipient_country_name'])['total_obligated_amount'].agg('sum').to_csv('country_distribution2019.csv')
+# orgs_with_covid19 = df[df['obligated_amount_funded_by_COVID-19_supplementals']>1]
+# orgs_with_covid19['obligated_amount_funded_by_COVID-19_supplementals'].sum()
+# remove_duns_value_for_IOs_and_donors = [483451832, 481075166, 301997891, 304278005, 483581992, 1709294, 62024112, 483581992, 626534515, 242777894, 481751894, 645000100, 718708159, 300587482, 225356161, 486037638, 71550813, 793511262, 17698452, 480997543, 483240862, 432160539, 151386109, 645521498, 66769738, 588031062]
+# for number in remove_duns_value_for_IOs_and_donors:
+#     orgs_with_covid19 = orgs_with_covid19.drop(orgs_with_covid19[orgs_with_covid19.recipient_duns == number].index)
+    
+# orgs_with_covid19["recipient_name"] = orgs_with_covid19['recipient_name'].str.replace('[^\w\s\.]','.''')
+# total_orgs_covid19sum = orgs_with_covid19['obligated_amount_funded_by_COVID-19_supplementals'].sum()
+orgs_with_covid19["recipient_name"] = orgs_with_covid19['recipient_name'].str.replace('[^\w\s\.]','')
+orgs_with_covid19["recipient_name"] = orgs_with_covid19['recipient_name'].str.replace(".", "")
+orgs_with_covid19.groupby(['recipient_parent_duns','recipient_duns','recipient_name'])['obligated_amount_funded_by_COVID-19_supplementals'].sum().sort_values().iloc[::-1]
+
+df_contracts = pd.read_csv('Contracts_PrimeAwardSummaries_2022-01-17_H16M21S56_1.csv')
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_21535/3450974209.py in <module>
+----> 1 orgs_with_covid19["recipient_name"] = orgs_with_covid19['recipient_name'].str.replace('[^\w\s\.]','')
+      2 orgs_with_covid19["recipient_name"] = orgs_with_covid19['recipient_name'].str.replace(".", "")
+      3 orgs_with_covid19.groupby(['recipient_parent_duns','recipient_duns','recipient_name'])['obligated_amount_funded_by_COVID-19_supplementals'].sum().sort_values().iloc[::-1]
+      4 
+      5 df_contracts = pd.read_csv('Contracts_PrimeAwardSummaries_2022-01-17_H16M21S56_1.csv')
+
+NameError: name 'orgs_with_covid19' is not defined
+ 
+import pandas as pd
+df_contracts = pd.read_csv('Contracts_PrimeAwardSummaries_2022-01-17_H16M21S56_1.csv')
+contractsc19 = df_contracts[df_contracts['obligated_amount_funded_by_COVID-19_supplementals']>1]
+contractsc19["recipient_name"] = contractsc19['recipient_name'].str.replace('[^\w\s\.]','.''')
+contractsc19.groupby(['recipient_parent_duns','recipient_duns','recipient_name'])['obligated_amount_funded_by_COVID-19_supplementals'].sum().sort_values().iloc[::-1]
+
+# orgs_with_covid19["recipient_name"] = orgs_with_covid19["recipient_name"].apply(lambda x: x.str.replace(',', ''))
+
+
+# orgs_with_covid19["recipient_name"] = orgs_with_covid19['recipient_name'].str.replace('[^\w\s\.]','.','')
+# orgs_with_covid19.groupby(['recipient_duns','recipient_name'])['obligated_amount_funded_by_COVID-19_supplementals'].sum().sort_values().iloc[::-1]
+
+# contractsc19.groupby(['recipient_duns'])['obligated_amount_funded_by_COVID-19_supplementals'].sum().sort_values().iloc[::-1]
+# contractsc19.sort_values(by='recipient_duns').sort_values(by="obligated_amount_funded_by_COVID-19_supplementals").iloc[::-1]
+# .drop_duplicates(subset='item')
+
+# contract_list = contractsc19.groupby('recipient_duns').agg('obligated_amount_funded_by_COVID-19_supplementals').sum()
+
+# contract_list
+# # bossmap = df.set_index('id')['name'].squeeze()
+# # df['boss_name'] = df['bossId'].map(bossmap)
+
+# contract_map = contractsc19.set_index('recipient_duns')
+# contract_map
+
+contractsc19['obligated_amount_funded_by_COVID-19_supplementals'].sum()
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_98154/2789633639.py:1: FutureWarning: The default value of regex will change from True to False in a future version.
+  contractsc19["recipient_name"] = contractsc19['recipient_name'].str.replace('[^\w\s\.]','.''')
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_98154/2789633639.py:1: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  contractsc19["recipient_name"] = contractsc19['recipient_name'].str.replace('[^\w\s\.]','.''')
+502444498.6
+ 
+# orgs_with_covid19
+new_df['recipient_duns'] == 17698452
+5       False
+11      False
+22      False
+25      False
+34      False
+        ...  
+7577    False
+7581    False
+7583    False
+7584    False
+7588    False
+Name: recipient_duns, Length: 1097, dtype: bool
+# misc_foreign_contractors_grants
+ 
+ 
+ 
+ 
+bigdata = contractsc19.append(orgs_with_covid19, ignore_index=True)
+bigdata["recipient_name"] = bigdata['recipient_name'].str.replace(".", "")
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_98154/1469019452.py:2: FutureWarning: The default value of regex will change from True to False in a future version. In addition, single character regular expressions will *not* be treated as literal strings when regex=True.
+  bigdata["recipient_name"] = bigdata['recipient_name'].str.replace(".", "")
+w = 20
+
+top = bigdata.groupby(['recipient_parent_duns','recipient_duns','recipient_name'])['obligated_amount_funded_by_COVID-19_supplementals'].sum().sort_values().iloc[::-1].head(w)
+
+top.sum()
+print('top',w,'divided by total:', top.sum()/bigdata['obligated_amount_funded_by_COVID-19_supplementals'].sum())
+top 20 divided by total: 0.49191373576079894
+# bigdata.groupby(['recipient_country_name'])['obligated_amount_funded_by_COVID-19_supplementals'].sum().sort_values().iloc[::-1].head(100)
+722092066/bigdata['obligated_amount_funded_by_COVID-19_supplementals'].sum()
+0.3843058388334178
+df_contracts
+contract_award_unique_key	award_id_piid	parent_award_agency_id	parent_award_agency_name	parent_award_id_piid	disaster_emergency_fund_codes	outlayed_amount_funded_by_COVID-19_supplementals	obligated_amount_funded_by_COVID-19_supplementals	total_obligated_amount	current_total_value_of_award	potential_total_value_of_award	award_base_action_date	award_base_action_date_fiscal_year	award_latest_action_date	award_latest_action_date_fiscal_year	period_of_performance_start_date	period_of_performance_current_end_date	period_of_performance_potential_end_date	ordering_period_end_date	solicitation_date	awarding_agency_code	awarding_agency_name	awarding_sub_agency_code	awarding_sub_agency_name	awarding_office_code	awarding_office_name	funding_agency_code	funding_agency_name	funding_sub_agency_code	funding_sub_agency_name	funding_office_code	funding_office_name	treasury_accounts_funding_this_award	federal_accounts_funding_this_award	object_classes_funding_this_award	program_activities_funding_this_award	foreign_funding	foreign_funding_description	sam_exception	sam_exception_description	recipient_duns	recipient_uei	recipient_name	recipient_doing_business_as_name	cage_code	recipient_parent_duns	recipient_parent_uei	recipient_parent_name	recipient_country_code	recipient_country_name	recipient_address_line_1	recipient_address_line_2	recipient_city_name	recipient_county_name	recipient_state_code	recipient_state_name	recipient_zip_4_code	recipient_congressional_district	recipient_phone_number	recipient_fax_number	primary_place_of_performance_country_code	primary_place_of_performance_country_name	primary_place_of_performance_city_name	primary_place_of_performance_county_name	primary_place_of_performance_state_code	primary_place_of_performance_state_name	primary_place_of_performance_zip_4	primary_place_of_performance_congressional_district	award_or_idv_flag	award_type_code	award_type	idv_type_code	idv_type	multiple_or_single_award_idv_code	multiple_or_single_award_idv	...	county_local_government	inter_municipal_local_government	local_government_owned	municipality_local_government	school_district_local_government	township_local_government	us_tribal_government	foreign_government	organizational_type	corporate_entity_not_tax_exempt	corporate_entity_tax_exempt	partnership_or_limited_liability_partnership	sole_proprietorship	small_agricultural_cooperative	international_organization	us_government_entity	community_development_corporation	domestic_shelter	educational_institution	foundation	hospital_flag	manufacturer_of_goods	veterinary_hospital	hispanic_servicing_institution	receives_contracts	receives_financial_assistance	receives_contracts_and_financial_assistance	airport_authority	council_of_governments	housing_authorities_public_tribal	interstate_entity	planning_commission	port_authority	transit_authority	subchapter_scorporation	limited_liability_corporation	foreign_owned	for_profit_organization	nonprofit_organization	other_not_for_profit_organization	the_ability_one_program	private_university_or_college	state_controlled_institution_of_higher_learning	1862_land_grant_college	1890_land_grant_college	1994_land_grant_college	minority_institution	historically_black_college	tribal_college	alaskan_native_servicing_institution	native_hawaiian_servicing_institution	school_of_forestry	veterinary_college	dot_certified_disadvantage	self_certified_small_disadvantaged_business	small_disadvantaged_business	c8a_program_participant	historically_underutilized_business_zone_hubzone_firm	sba_certified_8a_joint_venture	highly_compensated_officer_1_name	highly_compensated_officer_1_amount	highly_compensated_officer_2_name	highly_compensated_officer_2_amount	highly_compensated_officer_3_name	highly_compensated_officer_3_amount	highly_compensated_officer_4_name	highly_compensated_officer_4_amount	highly_compensated_officer_5_name	highly_compensated_officer_5_amount	usaspending_permalink	last_modified_date	Fixed Price	International Organization	Undisclosed awardee	Mechanism
+0	CONT_AWD_AIDLABV1500081_7200_-NONE-_-NONE-	AIDLABV1500081	NaN	NaN	NaN	NaN	NaN	NaN	13073.900000	NaN	NaN	2015-07-29	2015	2015-07-29	2015	2015-07-29	2015-07-29 00:00:00	2015-07-29 00:00:00	NaN	NaN	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	72000	AGENCY FOR INTERNATIONAL DEVELOPMENT	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	72000	AGENCY FOR INTERNATIONAL DEVELOPMENT	NaN	NaN	NaN	NaN	NaN	NOT APPLICABLE	NaN	NAN	608651266	QC2HLJMBL7E8	FEDGOV SUPPLY, LLP	NaN	NaN	608651266.000000	QC2HLJMBL7E8	FEDGOV SUPPLY, LLP	USA	UNITED STATES OF AMERICA	7926 QUEENAIR DRIVE	NaN	GAITHERSBURG	MONTGOMERY	MD	MARYLAND	20879	NaN	3012044444	3019201171.000000	USA	UNITED STATES OF AMERICA	WASHINGTON	DISTRICT OF COLUMBIA	DC	DISTRICT OF COLUMBIA	205230003	0.000000	AWARD	B	PO	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	NaN	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_AID...	2015-07-29 00:00:00	No	No	No	Contract
+1	CONT_AWD_AID263O1400023_7200_-NONE-_-NONE-	AID263O1400023	NaN	NaN	NaN	NaN	NaN	NaN	96363.420000	96363.420000	96363.420000	2014-03-31	2014	2018-04-04	2018	2014-03-31	2015-05-13 00:00:00	2018-04-04 00:00:00	NaN	NaN	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720263	USAID/EGYPT	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720263	USAID/EGYPT	072-2014/2014-1000-000	072-1000	11.8: Special personal services payments	0001: OPERATING EXPENSES OF THE AGENCY FOR INT...	X	NOT APPLICABLE	NaN	NaN	790238851	NN2NGPDNCK23	FOREIGN AWARDEES (UNDISCLOSED)	NaN	3JEV3	790238851.000000	NN2NGPDNCK23	FOREIGN CONTRACTOR (UNDISCLOSED)	USA	UNITED STATES	1800 F ST NW	NaN	WASHINGTON	DISTRICT OF COLUMBIA	DC	DISTRICT OF COLUMBIA	204050001	00	7036053406	NaN	EGY	EGYPT	NaN	NaN	NaN	NaN	NaN	NaN	AWARD	B	PURCHASE ORDER	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	OTHER	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_AID...	2020-10-28 20:02:13	No	No	Yes	Contract
+2	CONT_AWD_AIDOAAO1600022_7200_-NONE-_-NONE-	AIDOAAO1600022	NaN	NaN	NaN	Q: Excluded from tracking (uses non-emergency/...	NaN	NaN	49999.040000	49999.040000	49999.040000	2016-05-23	2016	2020-06-12	2020	2016-05-23	2020-06-12 00:00:00	2020-06-12 00:00:00	NaN	NaN	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720FDA	USAID DCHA/OFDA	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720FDA	USAID DCHA/OFDA	072-X-1035-000	072-1035	41.0: Grants, subsidies, and contributions	0001: INTERNATIONAL DISASTER ASSISTANCE (DIRECT)	X	NOT APPLICABLE	NaN	NaN	87085593	PJNDNV8G61L8	PRECISE KIT PROMOTIONS, INC.	NaN	3SLJ1	87085593.000000	PJNDNV8G61L8	KIT PRECISE PROMOTIONS INC	USA	UNITED STATES	48 S FRANKLIN TPKE STE 102	NaN	RAMSEY	BERGEN	NJ	NEW JERSEY	074462551	05	2013275010	2013275211.000000	USA	UNITED STATES	RAMSEY	BERGEN	NJ	NEW JERSEY	074461189	5.000000	AWARD	B	PURCHASE ORDER	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	CORPORATE NOT TAX EXEMPT	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_AID...	2020-06-12 12:32:49	No	No	No	Contract
+3	CONT_AWD_AID442S1600003_7200_-NONE-_-NONE-	AID442S1600003	NaN	NaN	NaN	Q: Excluded from tracking (uses non-emergency/...	NaN	NaN	61865.920000	61865.920000	61865.920000	2015-11-20	2016	2020-09-02	2020	2015-11-30	2016-05-29 00:00:00	2016-05-29 00:00:00	NaN	NaN	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720442	USAID/CAMBODIA	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720442	USAID/CAMBODIA	072-2013/2018-1021-000	072-1021	11.3: Other than full-time permanent	0001: DEVELOPMENT ASSISTANCE PROGRAM (DIRECT)	X	NOT APPLICABLE	NaN	NaN	790238638	KA5HQCLKUVW1	DOMESTIC AWARDEES (UNDISCLOSED)	NaN	3JEH0	790238638.000000	KA5HQCLKUVW1	DOMESTIC CONTRACTOR (UNDISCLOSED)	USA	UNITED STATES	1800 F ST NW	NaN	WASHINGTON	DISTRICT OF COLUMBIA	DC	DISTRICT OF COLUMBIA	204050001	00	7038593826	NaN	KHM	CAMBODIA	NaN	NaN	NaN	NaN	NaN	NaN	AWARD	D	DEFINITIVE CONTRACT	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	OTHER	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_AID...	2020-09-02 02:23:13	No	No	Yes	Contract
+4	CONT_AWD_72012120P00010_7200_-NONE-_-NONE-	72012120P00010	NaN	NaN	NaN	Q: Excluded from tracking (uses non-emergency/...	NaN	NaN	38594.000000	38594.000000	38594.000000	2020-02-06	2020	2020-02-06	2020	2020-02-06	2022-02-05 00:00:00	2022-02-05 00:00:00	NaN	NaN	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720121	USAID/UKRAINE	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720121	USAID/UKRAINE	072-2018/2023-0306-000	072-0306	41.0: Grants, subsidies, and contributions	0001: ASSISTANCE FOR EUROPE, EURASIA AND CENTR...	X	NOT APPLICABLE	NaN	NaN	364589185	GJMDT4GPFL62	INTERNATIONAL CENTRE FOR POLICY STUDIES, PO	NaN	A0Q1J	364589185.000000	GJMDT4GPFL62	INTERNATIONAL CENTRE FOR POLICY STUDIES PO	UKR	UKRAINE	BUD. 13	VUL. MYKOLY PYMONENKA	KYIV	NaN	NaN	NaN	04050	NaN	NaN	NaN	UKR	UKRAINE	NaN	NaN	NaN	NaN	NaN	NaN	AWARD	B	PURCHASE ORDER	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	OTHER	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_720...	2020-02-06 08:28:09	No	No	No	Contract
+...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...
+30019	CONT_AWD_19KZ2021P0139_1900_-NONE-_-NONE-	19KZ2021P0139	NaN	NaN	NaN	NaN	NaN	NaN	15485.720000	15485.720000	15485.720000	2021-02-08	2021	2021-11-09	2022	2021-02-08	2022-02-08 00:00:00	2022-02-08 00:00:00	NaN	NaN	19	DEPARTMENT OF STATE (DOS)	1900	STATE, DEPARTMENT OF	19KZ20	AMERICAN CONSULATE GENERAL ALMATY	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720115	USAID/CENTRAL ASIA/KAZAKHSTAN	NaN	NaN	NaN	NaN	X	NOT APPLICABLE	NaN	NaN	123456787	LN9PU5M2YZN5	MISCELLANEOUS FOREIGN AWARDEES	NaN	35KC0	123456787.000000	LN9PU5M2YZN5	MISCELLANEOUS FOREIGN CONTRACTORS	USA	UNITED STATES	1800 F ST NW	NaN	WASHINGTON	DISTRICT OF COLUMBIA	DC	DISTRICT OF COLUMBIA	204050001	98	7036052175	NaN	KAZ	KAZAKHSTAN	NaN	NaN	NaN	NaN	NaN	NaN	AWARD	B	PURCHASE ORDER	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	OTHER	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_19K...	2021-11-25 22:51:46	No	No	Yes	Contract
+30020	CONT_AWD_72048618F00002_7200_AID486I1500001_7200	72048618F00002	7200.000000	AGENCY FOR INTERNATIONAL DEVELOPMENT	AID486I1500001	Q: Excluded from tracking (uses non-emergency/...	NaN	NaN	1049895.000000	1049895.000000	1049895.000000	2018-08-15	2018	2021-08-20	2021	2018-08-15	2021-09-30 00:00:00	2021-09-30 00:00:00	NaN	NaN	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720486	USAID/RDMA/THAILAND	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	720486	USAID/RDMA/THAILAND	072-019-2019/2020-1031-000;072-2017/2018-1021-...	019-1031;072-1021	41.0: Grants, subsidies, and contributions	0001: DEVELOPMENT ASSISTANCE PROGRAM (DIRECT);...	X	NOT APPLICABLE	NaN	NaN	4868105	JJHCMK4NT5N3	RESEARCH TRIANGLE INSTITUTE	NaN	3A730	4868105.000000	JJHCMK4NT5N3	RESEARCH TRIANGLE INSTITUTE INC	USA	UNITED STATES	3040 CORNWALLIS RD	NaN	RESEARCH TRIANGLE PARK	DURHAM	NC	NORTH CAROLINA	277090155	04	9195416190	9195417148.000000	LAO	LAOS	NaN	NaN	NaN	NaN	NaN	NaN	AWARD	C	DELIVERY ORDER	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	CORPORATE TAX EXEMPT	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_720...	2021-08-20 02:24:13	No	No	No	Contract
+30021	CONT_AWD_AIDOAAS1700023_7200_-NONE-_-NONE-	AIDOAAS1700023	NaN	NaN	NaN	Q: Excluded from tracking (uses non-emergency/...	NaN	NaN	532466.930000	532466.930000	532466.930000	2017-03-27	2017	2021-11-24	2022	2017-03-27	2022-04-30 00:00:00	2022-04-30 00:00:00	NaN	NaN	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	7200EE	USAID E E	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	7200AA	USAID M/OAA	072-2016/2017-0306-000;072-2018/2019-0306-000;...	072-0306	11.3: Other than full-time permanent;11.5: Oth...	0001: ASSISTANCE FOR EUROPE, EURASIA AND CENTR...	X	NOT APPLICABLE	NaN	NaN	80503827	F7TXAJQ6JFL3	MCPARLAND, LEISHA	NaN	7T3L5	80503827.000000	F7TXAJQ6JFL3	MCPARLAND LEISHA	USA	UNITED STATES	1015 GLENVIEW WAY	NaN	SALEM	POLK	OR	OREGON	973043772	04	5412287070	NaN	VNM	VIETNAM	NaN	NaN	NaN	NaN	NaN	NaN	AWARD	D	DEFINITIVE CONTRACT	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	SOLE PROPRIETORSHIP	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_AID...	2021-12-06 18:07:16	No	No	No	Contract
+30022	CONT_AWD_SBN15015M0101_1900_-NONE-_-NONE-	SBN15015M0101	NaN	NaN	NaN	NaN	NaN	NaN	7718.100000	NaN	NaN	2014-12-09	2015	2014-12-09	2015	2014-12-09	2014-12-19 00:00:00	2014-12-19 00:00:00	NaN	NaN	19	DEPARTMENT OF STATE (DOS)	1900	STATE, DEPARTMENT OF	BN150	AMERICAN EMBASSY- COTONOU	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	72000	AGENCY FOR INTERNATIONAL DEVELOPMENT	NaN	NaN	NaN	NaN	NaN	NOT APPLICABLE	NaN	NAN	123456787	LN9PU5M2YZN5	MISCELLANEOUS FOREIGN AWARDEES	NaN	NaN	123456787.000000	LN9PU5M2YZN5	MISCELLANEOUS FOREIGN CONTRACTORS	UNITED STATES	NaN	1800 F ST NW	NaN	WASHINGTON	NaN	DC	NaN	204050001	DC00	7036053406	7036053454.000000	BEN	BENIN	NaN	NaN	NaN	NaN	NaN	NaN	AWARD	B	PO	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	NaN	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_SBN...	2014-12-10 00:00:00	No	No	Yes	Contract
+30023	CONT_AWD_19GV1018P0509_1900_-NONE-_-NONE-	19GV1018P0509	NaN	NaN	NaN	NaN	NaN	NaN	15119.530000	15119.530000	15119.530000	2018-06-04	2018	2018-06-04	2018	2018-06-04	2018-06-04 00:00:00	2018-07-18 00:00:00	NaN	NaN	19	DEPARTMENT OF STATE (DOS)	1900	STATE, DEPARTMENT OF	19GV10	U.S. EMBASSY CONAKRY	72	AGENCY FOR INTERNATIONAL DEVELOPMENT (USAID)	7200	AGENCY FOR INTERNATIONAL DEVELOPMENT	72000M	USAID M	NaN	NaN	NaN	NaN	X	NOT APPLICABLE	NaN	NaN	123456787	LN9PU5M2YZN5	MISCELLANEOUS FOREIGN AWARDEES	NaN	35KC0	123456787.000000	LN9PU5M2YZN5	MISCELLANEOUS FOREIGN CONTRACTORS	USA	UNITED STATES	1800 F ST NW	NaN	WASHINGTON	DISTRICT OF COLUMBIA	DC	DISTRICT OF COLUMBIA	204050001	00	2022159767	NaN	GIN	GUINEA	NaN	NaN	NaN	NaN	00224	NaN	AWARD	B	PURCHASE ORDER	NaN	NaN	NaN	NaN	...	f	f	f	f	f	f	f	f	OTHER	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	t	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	f	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	NaN	https://www.usaspending.gov/award/CONT_AWD_19G...	2018-10-17 08:07:46	No	No	Yes	Contract
+30024 rows × 279 columns
+
+df_contracts(['recipient_parent_duns','recipient_name','highly_compensated_officer_1_name'])
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_15882/2754342842.py in <module>
+----> 1 df_contracts(['recipient_parent_duns','recipient_name','highly_compensated_officer_1_name'])
+
+TypeError: 'DataFrame' object is not callable
+pd.set_option('display.max_rows', None)
+df_contracts.groupby(['recipient_duns','recipient_name','award_latest_action_date_fiscal_year','highly_compensated_officer_1_name'])['highly_compensated_officer_1_amount'].unique()
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+/var/folders/yl/7tmn1xl92gx6x371ry9qn1cr0000gn/T/ipykernel_21535/793790046.py in <module>
+      1 pd.set_option('display.max_rows', None)
+----> 2 df_contracts.groupby(['recipient_duns','recipient_name','award_latest_action_date_fiscal_year','highly_compensated_officer_1_name'])['highly_compensated_officer_1_amount'].unique()
+
+NameError: name 'df_contracts' is not defined
+ 
+ 
+ 
+ 
+ 
